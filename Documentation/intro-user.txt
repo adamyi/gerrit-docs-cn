@@ -1,31 +1,20 @@
-= User Guide
+= 项目开发者指南
 
-This is a Gerrit guide that is dedicated to Gerrit end-users. It
-explains the standard Gerrit workflows and how a user can adapt Gerrit
-to personal preferences.
+这是一份面向项目开发者的 Gerrit 指南。它介绍了标准的 Gerrit 工作流以及用户可以怎样以自己的偏好来使用 Gerrit。
 
-It is expected that readers know about link:http://git-scm.com/[Git]
-and that they are familiar with basic git commands and workflows.
+在阅读本指南前，请确保自己熟悉 link:http://git-scm.com/[Git] 及其基本命令与工作流。
 
 [[gerrit]]
-== What is Gerrit?
+== Gerrit 是什么？
 
-Gerrit is a Git server that provides link:access-control.html[access
-control] for the hosted Git repositories and a web front-end for doing
-link:#code-review[code review]. Code review is a core functionality of
-Gerrit, but still it is optional and teams can decide to
-link:#no-code-review[work without code review].
+Gerrit 是一个提供link:access-control.html[访问控制]的带有 WEB 代码审查（Code Review）前端的 Git 服务器。代码审查是 Gerrit 的核心功能，但也可以选择不使用 Code Review 而仅把 Gerrit 当作普通 Git 服务器使用，详情请见 link:#no-code-review[不启用 Code Review]。
 
 [[tools]]
-== Tools
+== 客户端软件
 
-Gerrit speaks the git protocol. This means in order to work with Gerrit
-you do *not* need to install any Gerrit client, but having a regular
-git client, such as the link:http://git-scm.com/[git command line] or
-link:http://eclipse.org/egit/[EGit] in Eclipse, is sufficient.
+Gerrit 使用 git 协议，也就是说你*并不*需要安装任何的 Gerrit 特有客户端，仅使用常规的 git 客户端，比如 link:http://git-scm.com/[git 命令行] 或者 Eclipse 中的 link:http://eclipse.org/egit/[EGit] 就足够了。
 
-Still there are some client-side tools for Gerrit, which can be used
-optionally:
+当然，你也可以用一些专门的客户端，不过这不是必须的：
 
 * link:http://eclipse.org/mylyn/[Mylyn Gerrit Connector]: Gerrit
   integration with Mylyn
@@ -38,10 +27,9 @@ optionally:
   interface for Gerrit
 
 [[clone]]
-== Clone Gerrit Project
+== Clone Gerrit 项目
 
-Cloning a Gerrit project is done the same way as cloning any other git
-repository by using the `git clone` command.
+Clone Gerrit 项目仅需使用常规的 `git clone` 命令即可。
 
 .Clone Gerrit Project
 ----
@@ -49,42 +37,22 @@ repository by using the `git clone` command.
   Cloning into RecipeBook...
 ----
 
-The URL for cloning the project can be found in the Gerrit web UI
-under `Projects` > `List` > <project-name> > `General`.
+用于 clone 的 URL 可以在 Gerrit WEB 端 `Projects` > `List` > <project-name> > `General` 中找到。
 
-For git operations Gerrit supports the link:user-upload.html#ssh[SSH]
-and the link:user-upload.html#http[HTTP/HTTPS] protocols.
+Gerrit 兼容 link:user-upload.html#ssh[SSH] 和 link:user-upload.html#http[HTTP(S)] 协议来操作 git。
 
 [NOTE]
-To use SSH you may need to link:user-upload.html#ssh[configure your SSH public
-key in your `Settings`].
+如要使用 SSH，你需要link:user-upload.html#ssh[在 `Settings` 中设置你的 SSH 公钥].
 
 [[code-review]]
-== Code Review Workflow
+== 代码审查工作流
 
-With Gerrit _Code Review_ means to link:#review-change[review] every
-commit *before* it is accepted into the code base. The author of a code
-modification link:user-upload.html#push_create[uploads a commit] as a
-change to Gerrit. In Gerrit each change is stored in a
-link:#change-ref[staging area] where it can be checked and reviewed.
-Only when it is approved and submitted it gets applied to the code
-base. If there is feedback on a change, the author can improve the code
-modification by link:#upload-patch-set[amending the commit and
-uploading the new commit as a new patch set]. This way a change is
-improved iteratively and it is applied to the code base only when is
-ready.
+在 Gerrit 中，每一个 commit 在合并前必须要接受#review-change[代码审查]。修改作者需要以一个`修改`的形式link:user-upload.html#push_create[上传 commit]。任何修改在合并前都将先link:#change-ref[暂存]起来以供审查。作者可根据审查意见修改自己的代码，并通过link:#upload-patch-set[修订原 commit 并上传新 patch set]的方式更新修改。这样，一个修改在被合并回代码库前将一直被迭代更新。
 
 [[upload-change]]
-== Upload a Change
+== 上传修改
 
-Uploading a change to Gerrit is done by pushing a commit to Gerrit. The
-commit must be pushed to a ref in the `refs/for/` namespace which
-defines the target branch: `refs/for/<target-branch>`.
-The magic `refs/for/` prefix allows Gerrit to differentiate commits
-that are pushed for review from commits that are pushed directly into
-the repository, bypassing code review. For the target branch it is
-sufficient to specify the short name, e.g. `master`, but you can also
-specify the fully qualified branch name, e.g. `refs/heads/master`.
+可以通过 push commit 来向 Gerrit 上传修改。 Commit 必须要上传至 `refs/for/<target-branch>`。`refs/for/` 前缀让 Gerrit 明白这些 commits 需要审查而非绕过审查直接 push 进代码库里。对于目标分支，你可以使用像 `master` 一样的短名，也可使用完整名称，如 `refs/heads/master`。
 
 .Push for Code Review
 ----
@@ -108,21 +76,13 @@ specify the fully qualified branch name, e.g. `refs/heads/master`.
 
 [[push-fails]]
 [NOTE]
-If pushing to Gerrit fails consult the Gerrit documentation that
-explains the link:error-messages.html[error messages].
+如果 push 失败了，请参考link:error-messages.html[错误信息文档].
 
 [[change-ref]]
-When a commit is pushed for review, Gerrit stores it in a staging area
-which is a branch in the special `refs/changes/` namespace. A change
-ref has the format `refs/changes/XX/YYYY/ZZ` where `YYYY` is the
-numeric change number, `ZZ` is the patch set number and `XX` is the
-last two digits of the numeric change number, e.g.
-`refs/changes/20/884120/1`. Understanding the format of this ref is not
-required for working with Gerrit.
+当一个 commit 被 push 以进行审计时，Gerrit 将把它暂存进 `refs/changes/XX/YYYY/ZZ`，其中 `YYYY` 是修改的编号，`ZZ` 是 patch set 编号，`XX` 是修改编号的末两位，例如 `refs/changes/20/884120/1`。不过，你不需要理解这一命名格式就可以使用 Gerrit。
 
 [[fetch-change]]
-Using the change ref git clients can fetch the corresponding commit,
-e.g. for local verification.
+使用这一 ref，也可以抓取相应的 commit 用于本地验证代码。
 
 .Fetch Change
 ----
@@ -130,33 +90,17 @@ e.g. for local verification.
 ----
 
 [NOTE]
-The fetch command can be copied from the
-link:user-review-ui.html#download[download commands] in the change
-screen.
+git fetch 命令可由 WEB 界面中的 link:user-review-ui.html#download[download 按钮] 获得。
 
-The `refs/for/` prefix is used to map the Gerrit concept of
-"Pushing for Review" to the git protocol. For the git client it looks
-like every push goes to the same branch, e.g. `refs/for/master` but in
-fact for each commit that is pushed to this ref Gerrit creates a new
-branch under the `refs/changes/` namespace. In addition Gerrit creates
-an open change.
+`refs/for/` 前缀是 Gerrit 中的 “push 进行审查”，但标准 git 客户端将把这一行为理解为所有的代码都被 push 到了相同的分支，比如 push 到了 `refs/for/master`。但事实上，push 到了这一 ref 的 commits 将会在 `refs/changes/` 下建立新的分支，并且 Gerrit 将创建一个新的修改。
 
 [[change]]
-A change consists of a link:user-changeid.html[Change-Id], meta data
-(owner, project, target branch etc.), one or more patch sets, comments
-and votes. A patch set is a git commit. Each patch set in a change
-represents a new version of the change and replaces the previous patch
-set. Only the latest patch set is relevant. This means all failed
-iterations of a change will never be applied to the target branch, but
-only the last patch set that is approved is integrated.
+每个修改都包含一个 link:user-changeid.html[Change-Id]，元数据（所有者、项目、目标分支等）、一个或多个 patch set、评论与审查投票。一个 patch set 本质上是一个 git commit。每个 patch set 都代表着这个修改的一个版本，并将替代旧的 patch set。最后上传的 patch set 是最新的，也是最终合并所用到的。旧的patch set将不会被合并至目标分支中。
 
 [[change-id]]
-The Change-Id is important for Gerrit to know whether a commit that is
-pushed for code review should create a new change or whether it should
-create a new patch set for an existing change.
+Change-Id 可以让 Gerrit 知道收到 commit 时应该创建新的修改还是创建一个已有修改的新 patch set。
 
-The Change-Id is a SHA-1 that is prefixed with an uppercase `I`. It is
-specified as footer in the commit message (last paragraph):
+Change-Id 本质上是由大写`I`开头的 SHA-1 hash 字符串，位于 commit message 的结尾（最后一个段落），例如：
 
 ----
   Improve foo widget by attaching a bar.
@@ -169,28 +113,11 @@ specified as footer in the commit message (last paragraph):
   Signed-off-by: A. U. Thor <author@example.com>
 ----
 
-If a commit that has a Change-Id in its commit message is pushed for
-review, Gerrit checks if a change with this Change-Id already exists
-for this project and target branch, and if yes, Gerrit creates a new
-patch set for this change. If not, a new change with the given
-Change-Id is created.
+如果一个带有 Change-Id 的 commit 被 push 进行审查，Gerrit 将检查该 Change-Id 是否出现在该目标分支先前的其他修改的 commit 中。如果存在，Gerrit 将针对该修改创建一个新的 patch set；否则 Gerrit 将用给定的 Change-Id 创建一个新的修改。
 
-If a commit without Change-Id is pushed for review, Gerrit creates a
-new change and generates a Change-Id for it. Since in this case the
-Change-Id is not included in the commit message, it must be manually
-inserted when a new patch set should be uploaded. Most projects already
-link:project-configuration.html#require-change-id[require a Change-Id]
-when pushing the very first patch set. This reduces the risk of
-accidentally creating a new change instead of uploading a new patch
-set. Any push without Change-Id then fails with
-link:error-missing-changeid.html[missing Change-Id in commit message
-footer]. New patch sets can always be uploaded to a specific change
-(even without any Change-Id) by pushing to the change ref, e.g.
-`refs/changes/74/67374`.
+如果一个不带 Change-Id 的 commit 被 push 进行审查，Gerrit 将自动创建一个新修改并生成一个 Change-Id 追加到 commit message 末尾。由于 Change-Id 并未出现在本地的 commit message 中，开发者必须手动将这个 Change-Id 添加进 commit message 中 才能上传新 patch set 更新这一修改。大部分项目已经配置了link:project-configuration.html#require-change-id[新修改必须带有 Change-Id] 以避免不小心错误地创建新的修改而非新的 patch set。在这种配置下，不带 Change-Id 的 commit push 将会收到错误 link:error-missing-changeid.html[missing Change-Id in commit message footer]。但是，如果开发者将 commit push 到某一修改对应的专门的 ref （例如`refs/changes/74/67374`），commit 将自动成为该修改的新 patch set（哪怕没有Change-Id）。
 
-Amending and rebasing a commit preserves the Change-Id so that the new
-commit automatically becomes a new patch set of the existing change,
-when it is pushed for review.
+在标准 git 客户端中，amend 和 rebase 一个 commit 默认会自动保留原 Change-Id，所以修改后的 commit 被 push 后将自动成为原修改的新 patch set。但如要使用其他方式产生新 patch set，请确保 commit message 包含原 Change-Id。
 
 .Push new Patch Set
 ----
@@ -198,53 +125,26 @@ when it is pushed for review.
   $ git push origin HEAD:refs/for/master
 ----
 
-Change-Ids are unique for a branch of a project. E.g. commits that fix
-the same issue in different branches should have the same Change-Id,
-which happens automatically if a commit is cherry-picked to another
-branch. This way you can link:user-search.html[search] by the Change-Id
-in the Gerrit web UI to find a fix in all branches.
+Change-Id 对于某一特定项目的特定分支是唯一的。也就是说，在不同分支中修复同一个问题的 commit 应该使用相同的 Change-Id。如果 commit 是被 cherry-pick 到其他分支的，那么 Change-Id 也会默认保持不变。这样可以确保用户可以通过单一的 Change-Id 在 Gerrit WEB端link:user-search.html[搜索]到所有分支中的这一修复。
+通过安装 `commit-msg` hook，Change-Id 可以被自动创建。具体请见 link:user-changeid.html#creation[Change-Id 文档]。
 
-Change-Ids can be created automatically by installing the `commit-msg`
-hook as described in the link:user-changeid.html#creation[Change-Id
-documentation].
-
-Instead of manually installing the `commit-msg` hook for each git
-repository, you can copy it into the
-link:http://git-scm.com/docs/git-init#_template_directory[git template
-directory]. Then it is automatically copied to every newly cloned
-repository.
+除了手动给每个项目安装 `commit-msg` hook 之外，你还可以将 hook copy 至 link:http://git-scm.com/docs/git-init#_template_directory[git template directory]，这将使这个 hook 被自动 copy 至之后所有新 clone 的项目的 .git 目录内。
 
 [[review-change]]
-== Review Change
+== 审查修改
 
-After link:#upload-change[uploading a change for review] reviewers can
-inspect it via the Gerrit web UI. Reviewers can see the code delta and
-link:user-review-ui.html#inline-comments[comment directly in the code]
-on code blocks or lines. They can also link:user-review-ui.html#reply[
-post summary comments and vote on review labels]. The
-link:user-review-ui.html[documentation of the review UI] explains the
-screens and controls for doing code reviews.
+在link:#upload-change[上传修改]之后，审查者可以通过 Gerrit WEB端进行线上代码审查。审查者可以直接看到代码并link:user-review-ui.html#inline-comments[针对某行或部分代码发表评论]。他们也可以link:user-review-ui.html#reply[针对整个修改发表总结性的评论并按照审查标签进行投票]。具体请参考 link:user-review-ui.html[审查界面文档] explains the
 
-There are several options to control how patch diffs should be
-rendered. Users can configure their preferences in the
-link:user-review-ui.html#diff-preferences[diff preferences].
+用户也可以根据 link:user-review-ui.html#diff-preferences[diff preferences] 来配置关于如何显示代码修改对比的一些参数。
 
 [[upload-patch-set]]
-== Upload a new Patch Set
+== 上传新的 Patch Set
 
-If there is feedback from code review and a change should be improved a
-new patch set with the reworked code should be uploaded.
+当审查者反馈问题后，开发者可以重新修改代码并上传新的的 commit 版本，也就是新的 patch set。
 
-This is done by amending the commit of the last patch set. If needed
-this commit can be fetched from Gerrit by using the fetch command from
-the link:user-review-ui.html#download[download commands] in the change
-screen.
+开发者需要 amend 上一个 patch set 的 commit。如果需要，这个 commit 可以通过在 Gerrit WEB 端给出的 link:user-review-ui.html#download[下载命令] 来 fetch。
 
-It is important that the commit message contains the
-link:user-changeid.html[Change-Id] of the change that should be updated
-as a footer (last paragraph). Normally the commit message already
-contains the correct Change-Id and the Change-Id is preserved when the
-commit is amended.
+请务必确保 commit message 中包含原修改的 link:user-changeid.html[Change-Id]。正常情况下，amend commit 会自动保留原 Change-Id。
 
 .Push Patch Set
 ----
@@ -264,63 +164,32 @@ commit is amended.
 ----
 
 [NOTE]
-Never amend a commit that is already part of a central branch.
+请不要 amend 一个已经被合并了的commit
 
-Pushing a new patch set triggers email notification to the reviewers.
+上传新的 patch set 将会导致系统发送 email 通知该修改的所有审查者。
 
 [[multiple-features]]
-== Developing multiple Features in parallel
+== 同时开发多流程
 
-Code review takes time, which can be used by the change author to
-implement other features. Each feature should be implemented in its own
-local feature branch that is based on the current HEAD of the target
-branch. This way there is no dependency to open changes and new
-features can be reviewed and applied independently. If wanted, it is
-also possible to base a new feature on an open change. This will create
-a dependency between the changes in Gerrit and each change can only be
-applied if all its predecessor are applied as well. Dependencies
-between changes can be seen from the
-link:user-review-ui.html#related-changes-tab[Related Changes] tab on
-the change screen.
+代码审查需要时间，而开发者可以利用这段时间来实现其他功能或更新。每一个功能都应该在自己单独的本地功能分支中开发，而这些分支应当基于目标分支当前 HEAD 所指 commit（最新的已合并 commit）。这样可以确保不同的修改之间不存在依赖关系以便他们被独立审查。如果需要，也可以基于一个正在审查的修改开发新功能。这将创建不同修改之间的依赖关系。只有当一个修改所依赖的其他修改都被合并后才能被合并。依赖关系可以在 WEB 端的 link:user-review-ui.html#related-changes-tab[Related Changes] 标签栏中看到。
 
 [[watch]]
-== Watching Projects
+== 关注项目
 
-To get to know about new changes you can link:user-notify.html#user[
-watch the projects] that you are interested in. For watched projects
-Gerrit sends you email notifications when a change is uploaded or
-modified. You can decide on which events you want to be notified and
-you can filter the notifications by using link:user-search.html[change
-search expressions]. For example '+branch:master file:^.*\.txt$+' would
-send you email notifications only for changes in the master branch that
-touch a 'txt' file.
+您可以通过link:user-notify.html#user[关注项目]来订阅该项目的所有新的修改。如果关注的项目有修改被上传或修改（新 Patch Set），Gerrit 将自动发送一封 email 通知您。您可以通过link:user-searh.html[修改搜索表达式]过滤通知并决定哪些事件将触发 email 通知。比如说，使用 `+branch:master file:^.*\.txt$+` 将仅通知您希望合并进 master 的有一个 txt 拓展名的文件有变化的修改。
 
-It is common that the members of a project team watch their own
-projects and then pick the changes that are interesting to them for
-review.
+通常来说，项目团队成员将关注自己的项目并选取其中他们感兴趣的修改进行审查。
 
-Project owners may also configure
-link:intro-project-owner.html#notifications[notifications on
-project-level].
+项目维护者也可配置link:intro-project-owner.html#notifications[针对项目的消息通知].
 
 [[adding-reviewers]]
-== Adding Reviewers
+== 添加审查者
 
-In the link:user-review-ui.html#reviewers[change screen] reviewers can
-be added explicitly to a change. The added reviewer will then be
-notified by email about the review request.
+在 WEB 端，用户可以给修改添加审查者。被添加的审查者将收到 email 通知。
 
-Mainly this functionality is used to request the review of specific
-person who is known to be an expert in the modified code or who is a
-stakeholder of the implemented feature. Normally it is not needed to
-explicitly add reviewers on every change, but you rather rely on the
-project team to watch their project and to process the incoming changes
-by importance, interest, time etc.
+这一功能主要用于寻求某一对被修改代码的功能比较了解的人或是被修改代码的原作者的意见。通常来说，我们不需要给每个修改都手动添加审查者，而是依赖于团队对项目的关注于兴趣以及修改的重要性来审查的。
 
-There are also link:intro-project-owner.html#reviewers[plugins which
-can add reviewers automatically] (e.g. by configuration or based on git
-blame annotations). If this functionality is required it should be
-discussed with the project owners and the Gerrit administrators.
+同时，也有一些插件可以link:intro-project-owner.html#reviewers[自动添加审查者] （比如根据配置或者根据 git blame）。如果需要这一功能，项目维护者应当与 Gerrit 管理员讨论。
 
 [[dashboards]]
 == Dashboards
@@ -367,42 +236,25 @@ project-level]. The project dashboards can be seen in the web UI under
 `Projects` > `List` > <project-name> > `Dashboards`.
 
 [[submit]]
-== Submit a Change
+== 合并修改
 
-Submitting a change means that the code modifications of the current
-patch set are applied to the target branch. Submit requires the
-link:access-control.html#category_submit[Submit] access right and is
-done on the change screen by clicking on the
-link:user-review-ui.html#submit[Submit] button.
+NOTE: 为了中文开发者的习惯，此处将 submit change 译为了 merge change，以和 push initial change commit 加以区分。但在英文文档中，请留意此处所指的是 submit change。
 
-In order to be submittable changes must first be approved by
-link:user-review-ui.html#vote[voting on the review labels]. By default
-a change can only be submitted if it has a vote with the highest value
-on each review label and no vote with the lowest value (veto vote).
-Projects can configure link:intro-project-owner.html#labels[custom
-labels] and link:intro-project-owner.html#submit-rules[custom submit
-rules] to control when a change becomes submittable.
+合并修改至目标分支需要 link:access-control.html#category_submit[Submit] 权限。用户仅需在 WEB 端点击 link:user-review-ui.html#submit[Submit 按钮]即可。
 
-How the code modification is applied to the target branch when a change
-is submitted is controlled by the
-link:project-configuration.html#submit_type[submit type] which can be
-link:intro-project-owner.html#submit-type[configured on project-level].
+修改必须先在所有link:user-review-ui.html#vote[审查标签]中取得批准才能合并。默认配置下，这意味着在每一个标签中都至少有一个可给出的最高分且没有可给出的最低分（即一票否决）。然而，项目也可以配置link:intro-project-owner.html#labels[自定义标签]和link:intro-project-owner.html#submit-rules[自定义合并规则
+]来控制何时修改可以被合并。
 
-Submitting a change may fail with conflicts. In this case you need to
-link:#rebase[rebase] the change locally, resolve the conflicts and
-upload the commit with the conflict resolution as new patch set.
+可link:intro-project-owner.html#submit-type[分项目配置]的link:project-configuration.html#submit_type[合并方式（submit type）]可以调整修改被合并到目标分支的方式。
 
-If a change cannot be merged due to path conflicts this is highlighted
-on the change screen by a bold red `Cannot Merge` label.
+合并修改可能会因为代码冲突而出错。在这种情况下，你需要在本地 rebase commit 并解决冲突。之后，你可以上传一个新的 patch set。
+
+如果一个修改因为代码冲突问题不能合并，将在 WEB 端高亮标记，并配有 `Cannot Merge` 标签。
 
 [[rebase]]
-== Rebase a Change
+== Rebase 修改
 
-While a change is in review the HEAD of the target branch can evolve.
-In this case the change can be rebased onto the new HEAD of the target
-branch. When there are no conflicts the rebase can be done directly
-from the link:user-review-ui.html#rebase[change screen], otherwise it
-must be done locally.
+当一个修改正在审查阶段，目标分支也可能有其他的更新。在这种情况下，这一修改可以被 rebase 到目标分支的新 HEAD 上。当没有冲突时，rebase 可直接在 link:user-review-ui.html#rebase[WEB 界面完成]，否则必须在本地完成。
 
 .Rebase a Change locally
 ----
@@ -427,32 +279,21 @@ must be done locally.
   $ git push origin HEAD:refs/for/master
 ----
 
-Doing a manual rebase is only necessary when there are conflicts that
-cannot be resolved by Gerrit. If manual conflict resolution is needed
-also depends on the link:intro-project-owner.html#submit-type[submit
-type] that is configured for the project.
+仅有当存在 Gerrit 无法自动解决的冲突时，才有必要进行手动 rebase。项目link:intro-project-owner.html#submit-type[合并方式]的配置也将影响是否需要手动解决冲突。
 
-Generally changes shouldn't be rebased without reason as it
-increases the number of patch sets and creates noise with
-notifications. However if a change is in review for a long time it may
-make sense to rebase it from time to time, so that reviewers can see
-the delta against the current HEAD of the target branch. It also shows
-that there is still an interest in this change.
+通常来说，修改不应被无意义 rebase，因为这将增加 patch set 数量从而给审查带来不必要的麻烦。然而，如果一个修改已经审查了很长时间，这时候过段时间 rebase 一次是很有必要的，同时也展示了开发者仍对这个修改有兴趣。
 
 [NOTE]
 Never rebase commits that are already part of a central branch.
+请不要 rebase 已经被合并的 commits。
 
 [[abandon]]
 [[restore]]
-== Abandon/Restore a Change
+== 搁置／恢复修改
 
-Sometimes during code review a change is found to be bad and it should
-be given up. In this case the change can be
-link:user-review-ui.html#abandon[abandoned] so that it doesn't appear
-in list of open changes anymore.
+有时候在代码审查时，一个修改太糟糕了以至于应当被放弃。这时，可以在 WEB 端link:user-review-ui.html#abandon[搁置修改]。被搁置的修改将不再出现在待合并的修改列表里。
 
-Abandoned changes can be link:user-review-ui.html#restore[restored] if
-later they are needed again.
+被搁置的修改也可以在日后被link:user-review-ui.html#restore[恢复]。
 
 [[topics]]
 == Using Topics
@@ -903,7 +744,7 @@ inline comment ("Yeah, I see why, let me try again.").
 
 GERRIT
 ------
-Part of link:index.html[Gerrit Code Review]
+这份文档是 link:index.html[Gerrit Code Review] 的一部分，由 mailto:i@adamyi.com[Adam Yi] 翻译。
 
 SEARCHBOX
 ---------

@@ -1,53 +1,42 @@
-= Working with Gerrit: An example
+= Gerrit 使用范例
 
-To understand how Gerrit works, let's follow a change through its entire
-life cycle. This example uses a Gerrit server configured as follows:
+让我们分析下一个代码修改被合并的完整流程以理解 Gerrit 是如何运作的。在此例中，服务器的配置参数为：
 
 * *Hostname*: gerrithost
-* *HTTP interface port*: 8080
-* *SSH interface port*: 29418
+* *HTTP 端口*: 8080
+* *SSH 端口*: 29418
 
-In this walkthrough, we'll follow two developers, Max and Hannah, as they make
-and review a change to a +RecipeBook+ project. We'll follow the change through
-these stages:
+在这个范例中，我们将在以下阶段跟随 Max 和 hannah 两位开发者开发 +RecipeBook+ 项目：
 
-. Making the change.
-. Creating the review.
-. Reviewing the change.
-. Reworking the change.
-. Verifying the change.
-. Submitting the change.
+. 产生修改
+. 开始审查
+. 审查修改
+. 修订修改
+. 验证修改
+. 合并修改
 
-NOTE: The project and commands used in this section are for demonstration
-purposes only.
+注：此节中项目与命令仅用于演示参考。
 
-== Making the Change
+== 产生修改
 
-Our first developer, Max, has decided to make a change to the +RecipeBook+
-project he works on. His first step is to get the source code that he wants to
-modify. To get this code, he runs the following `git clone` command:
+Max 决定修改 +RecipeBook+ 的代码。他要做的第一步是得到目前的项目源码。他使用了如下 `git clone` 命令：
 
 ----
-clone ssh://gerrithost:29418/RecipeBook.git RecipeBook
+git clone ssh://gerrithost:29418/RecipeBook.git RecipeBook
 ----
 
-After he clones the repository, he runs a couple of commands to add a
-link:user-changeid.html[Change-Id] to his commits. This ID allows Gerrit to link
-together different versions of the same change being reviewed.
+在他成功 clone 完项目后，他需要让他的 commits 能自动添加 link:user-changeid.html[Change-Id]。这能让 Gerrit 将同一修改的不同版本关联到一起。
 
 ....
 scp -p -P 29418 gerrithost:hooks/commit-msg RecipeBook/.git/hooks/
 chmod u+x .git/hooks/commit-msg
 ....
 
-NOTE: To learn more about adding a change-id and the commit message hook, see
-the link:cmd-hook-commit-msg.html[commit-msg Hook] topic.
+NOTE: 欢迎查看 link:cmd-hook-commit-msg.html[commit-msg Hook] 了解关于添加 Change-Id 以及 Commit Message Hook 的更多内容。
 
-== Creating the Review
+== 开始审查
 
-Max's next step is to push his change to Gerrit so other contributors can review
-it. He does this using the `git push origin HEAD:refs/for/master` command, as
-follows:
+Max 下一步要提交修改以供审查。他将使用 `git push origin HEAD:refs/for/master` 命令。
 
 ----
 $ <work>
@@ -68,126 +57,86 @@ To ssh://gerrithost:29418/RecipeBook.git
  * [new branch]      HEAD -> refs/for/master
 ----
 
-Notice the reference to a `refs/for/master` branch. Gerrit uses this branch to
-create reviews for the master branch. If Max opted to push to a different
-branch, he would have modified his command to
-`git push origin HEAD:refs/for/<branch_name>`. Gerrit accepts pushes to
-`refs/for/<branch_name>` for every branch that it tracks.
+Gerrit 使用 `refs/for/master` 分支来创建对 master 分支的修改审查。如果 Max 希望更改被合并到其他分支，他需要修改命令为 `git push origin HEAD:refs/for/<branch_name>`。
 
-The output of this command also contains a link to a web page Max can use to
-review this commit. Clicking on that link takes him to a screen similar to
-the following.
+这条命令同时也将输出这个修改的代码审查网址，打开将显示如下界面：
 
 .Gerrit Code Review Screen
 image::images/intro-quick-new-review.jpg[Gerrit Review Screen]
 
-This is the Gerrit code review screen, where other contributors can review
-his change. Max can also perform tasks such as:
+这是 Gerrit 代码审查界面，其他代码贡献者可以审查他的修改。Max 也可以做其他的操作：
 
-* Looking at the link:user-review-ui.html#diff-preferences[diff] of his change
-* Writing link:user-review-ui.html#inline-comments[inline] or
-  link:user-review-ui.html#reply[summary] comments to ask reviewers for advice
-  on particular aspects of the change
-* link:intro-user.html#adding-reviewers[Adding a list of people] that should
-  review the change
+* 对比代码变动（link:user-review-ui.html#diff-preferences[diff]）
+* 增加 link:user-review-ui.html#inline-comments[针对某行代码的] 或
+  link:user-review-ui.html#reply[针对整个修改的] 评论以询问审查者们的意见
+* link:intro-user.html#adding-reviewers[添加审查者]
 
-In this case, Max opts to manually add the senior developer on his team, Hannah,
-to review his change.
+在此例中，Max 将手动添加 Hannah 来审查他的修改。
 
-== Reviewing the Change
+== 审查修改
 
-Let's now switch to Hannah, the senior developer who will review Max's change.
+现在让我们把视角切换到 Hannah 来看看她是如何审查 Max 的修改的。
 
-As mentioned previously, Max chose to manually add Hannah as a reviewer. Gerrit
-offers other ways for reviewers to find changes, including:
+正如前文所说，Max 选择手动添加 Hannah 为审查者。Gerrit 提供了以下几种方式让 Hannah 找到这一修改：
 
-* Using the link:user-search.html[search] feature that to find changes
-* Selecting *Open* from the *Changes* menu
-* Setting up link:user-notify.html[email notifications] to stay informed of
-  changes even if you are not added as a reviewer
+* 使用 link:user-search.html[搜索] 功能
+* 在 *Changes* 菜单中选择 *Open*
+* 设置好 link:user-notify.html[email 通知] 来跟进进度（同样适用于未被添加为审查者的修改）
 
-Because Max added Hannah as a reviewer, she receives an email telling her about
-his change. She opens up the Gerrit code review screen and selects Max's change.
+因为 Max 添加了 Hannah 为审查者，她将收到一封 email 告诉她这个修改。她可以打开 Gerrit 并找到 Max 的修改。
 
 .Gerrit Code Review Screen
 image::images/intro-quick-new-review.jpg[Gerrit Review Screen]
 
-Notice the two "Need" lines:
+注意到两行 "Need":
 
 ----
 * Need Verified
 * Need Code-Review
 ----
 
-These two lines indicate what checks must be completed before the change is
-accepted. The default Gerrit workflow requires two checks:
+这两行表明了在修改合并之前必须完成的审查内容，默认配置下为：
 
-* *Code-Review*. This check requires that someone look at the code and ensures
-  that it meets project guidelines, styles, and other criteria.
-* *Verified*. This check means that the code actually compiles, passes any unit
-  tests, and performs as expected.
+* *Code-Review*. 这项需要团队中的其他人审查代码，确保它符合项目规范、代码规范等要求；
+* *Verified*. 这项将检查代码可以正常编译、运行，且通过所有的单元测试；
 
-In general, the *Code-Review* check requires an individual to look at the code,
-while the *Verified* check is done by an automated build server, through a
-mechanism such as the
-link:https://wiki.jenkins-ci.org/display/JENKINS/Gerrit+Trigger[Gerrit Trigger
-Jenkins Plugin].
+总的来说，*Code-Review* 将需要团队中其他人查看代码，而 *Verified* 将会由 CI 服务器自动完成（例如：link:https://wiki.jenkins-ci.org/display/JENKINS/Gerrit+Trigger[Gerrit Trigger Jenkins Plugin]）。
 
-IMPORTANT: The Code-Review and Verified checks require different permissions
-in Gerrit. This requirement allows teams to separate these tasks. For example,
-an automated process can have the rights to verify a change, but not perform a
-code review.
+IMPORTANT: Code-Review 和 Verified 审查需要不同的权限，这运行团队将这些任务分开。比如说，一个自动审查程序有权限 Verify，但是没有权限 Code Review。
 
-With the code review screen open, Hannah can begin to review Max's change. She
-can choose one of two ways to review the change: unified or side-by-side.
-Both views allow her to perform tasks such as add
-link:user-review-ui.html#inline-comments[inline] or
-link:user-review-ui.html#reply[summary] comments.
+在 Gerrit 界面中，Hannah 可以开始审查 Max 的修改。她可以用对比或者一体的视图来查看代码变化。她也可以添加 link:user-review-ui.html#inline-comments[针对某行代码的] 或 link:user-review-ui.html#reply[针对整个修改的] 评论。
 
-Hannah opts to view the change using Gerrit's side-by-side view:
+Hannah 选择用对比视图：
 
 .Side By Side Patch View
 image::images/intro-quick-review-line-comment.jpg[Adding a Comment]
 
-Hannah reviews the change and is ready to provide her feedback. She clicks the
-*Review* button on the change screen. This allows her to vote on the change.
+Hannah 看完了修改决定给出她的反馈。她点击了 *Review* 按钮，来对修改进行评分。
 
 .Reviewing the Change
 image::images/intro-quick-reviewing-the-change.jpg[Reviewing the Change]
 
-For Hannah and Max's team, a code review vote is a numerical score between -2
-and 2. The possible options are:
+对于 Hannah 和 Max 的团队，Code Review 投票支持由 -2 到 +2 的评分：
 
-* `+2 Looks good to me, approved`
-* `+1 Looks good to me, but someone else must approve`
-* `0 No score`
-* `-1 I would prefer that you didn't submit this`
-* `-2 Do not submit`
+* `+2` 修改很好请合并
+* `+1` 修改不错，但其他人需要看一眼
+* `0` 不评分
+* `-1` 我倾向于不合并
+* `-2` 请不要合并
 
-In addition, a change must have at least one `+2` vote and no `-2` votes before
-it can be submitted. These numerical values do not accumulate. Two
-`+1` votes do not equate to a `+2`.
+一个修改必须要有至少一个 ·+2· 且没有 `-2` 才能合并。这些评分不会累加，也就是说两个 `+1` 不能替代一个 `+2`。
 
-NOTE: These settings are enabled by default. To learn about how to customize
-them for your own workflow, see the
-link:config-project-config.html[Project Configuration File Format] topic.
+NOTE: 这些是默认配置。若要了解更多关于如何自定义你自己的工作流程，请查阅 link:config-project-config.html[项目配置文件]。
 
-Hannah notices a possible issue with Max's change, so she selects a `-1` vote.
-She uses the *Cover Message* text box to provide Max with some additional
-feedback. When she is satisfied with her review, Hannah clicks the
-*Publish Comments* button. At this point, her vote and cover message become
-visible to to all users.
+Hannah 发现了 Max 代码的一个问题，选择给 `-1` 分。她使用了 *Cover Message* 来提供额外的问题反馈。写完后，Hannah 点击了 *Publish Comments* 按钮来发布评论。此时，所有人将可以看到她的投票和反馈信息。
 
-== Reworking the Change
+== 修订修改
 
-Later in the day, Max decides to check on his change and notices Hannah's
-feedback. He opens up the source file and incorporates her feedback. Because
-Max's change includes a change-id, all he has to is follow the typical git
-workflow for updating a commit:
+晚些时候，Max 决定看看修改的状态，于是留意到了 Hannah 的反馈。他打开了源文件进行修改。由于 Max 的修改已经包含了一个 Change-Id，他只需要按照典型的 git 工作流来更新他的 commit即可：
 
-* Check out the commit
-* Amend the commit
-* Push the commit to Gerrit
+* Check out commit
+* Amend commit
+* Push commit to Gerrit
 
 ----
 $ <checkout first commit>
@@ -208,83 +157,54 @@ To ssh://gerrithost:29418/RecipeBook.git
  * [new branch]      HEAD -> refs/for/master
 ----
 
-Notice that the output of this command is slightly different from Max's first
-commit. This time, the output verifies that the change was updated.
+请留意这次命令输出与之前略有不同。这次，输出中写到修改被更新了。
 
-Having uploaded the reworked commit, Max can go back to the Gerrit web
-interface and look at his change.
+上传了修订过的 commit 后，Max 在 Gerrit 网页上就可以看到修订后的修改了。
 
 .Reviewing the Rework
 image::images/intro-quick-review-2-patches.jpg[Reviewing the Rework]
 
-Notice that there are now two patch sets associated with this change: the
-initial submission and the rework.
+这个修改有两个 patch set 分别对应了最初的修改和这次修订过后的修改。
 
-When Hannah next looks at Max's change, she sees that he incorporated her
-feedback. The change looks good to her, so she changes her vote to a `+2`.
+当 Hannah 再看 Max 的修改时，她就可以看到 Max 做出的修订。如果 Hannah 觉得没问题了，就可以投 `+2`。
 
-== Verifying the Change
+== 验证修改
 
-Hannah's `+2` vote means that Max's change satisfies the *Needs Review*
-check. It has to pass one more check before it can be accepted: the *Needs
-Verified* check.
+Hannah 的 `+2` 投票意味着 Max 的修改满足了 *Needs Review* 审查需求。它还需要通过 *Needs Verified* 需求才能合并
 
-The Verified check means that the change was confirmed to work. This type of
-check typically involves tasks such as checking that the code compiles, unit
-tests pass, and other actions. You can configure a Verified check to consist
-of as many or as few tasks as needed.
+验证检查需要确保程序能正常工作。这种检查通常包括编译、单元测试等。你可以配置这种检查具体包含什么。
 
-NOTE: Remember that this walkthrough uses Gerrit's default workflow. Projects
-can add custom checks or even remove the Verified check entirely.
+NOTE: 此例子只是用了 Gerrit 的默认工作流，项目可以添加其他自定义的审查项，也可以完全删掉 Verified 检查。
 
-Verification is typically an automated process using the
-link:https://wiki.jenkins-ci.org/display/JENKINS/Gerrit+Trigger[Gerrit Trigger Jenkins Plugin]
-or a similar mechanism. However, there are still times when a change requires
-manual verification, or a reviewer needs to check how or if a change works.
-To accommodate these and other similar circumstances, Gerrit exposes each change
-as a git branch. The Gerrit UI includes a
-link:user-review-us.html#download[*download*] link in the Gerrit Code Review
-Screen to make it easy for reviewers to fetch a branch for a specific change.
-To manually verify a change, a reviewer must have the
-link:config-labels.html#label_Verified[Verified] permission. Then, the reviewer
-can fetch and checkout that branch from Gerrit. Hannah has this permission, so
-she is authorized to manually verify Max's change.
+验证通常由 CI 自动完成，如 link:https://wiki.jenkins-ci.org/display/JENKINS/Gerrit+Trigger[Gerrit Trigger Jenkins Plugin]。然而，有些时候修改可能需要人工验证。为了这些情况，Gerrit 将每个修改处理成一个 git 分支以供下载经修改后的代码。Gerrit 网页端提供了一个 link:user-review-us.html#download[*download*] 按钮来让审查者更轻松地拉取这一修改的代码。如要手工确认修改，审查者必须有 link:config-labels.html#label_Verified[Verified] 权限。
 
-NOTE: The Verifier can be the same person as the code reviewer or a
-different person entirely.
+NOTE: Verify 和 Code Review 可由同一审查者完成，也可由不同人完成。
 
 .Verifying the Change
 image::images/intro-quick-verifying.jpg[Verifying the Change]
 
-Unlike the code review check, the verify check is pass/fail. Hannah can provide
-a score of either `+1` or `-1`. A change must have at least one `+1` and no
-`-1`.
+与 Code Review 不同，验证只有通过与不通过，所以 Hannah 只能打 `-1` 或 `+1` 分。一个修改必须有至少一个 `+1` 且无 `-1` 才能通过。
 
-Hannah selects a `+1` for her verified check. Max's change is now ready to be
-submitted.
+Hannah 手工选择了 `+1` 验证，Max 的修改已经准备好合并了。
 
-== Submitting the Change
+== 合并修改
 
-Max is now ready to submit his change. He opens up the change in the Code Review
-screen and clicks the *Publish and Submit* button.
+NOTE: 为了中文开发者的习惯，此处将 submit change 译为了 merge change，以和 push initial change commit 加以区分。但在英文文档中，请留意此处所指的是 submit change。
 
-At this point, Max's change is merged into the repository's master branch and
-becomes an accepted part of the project.
+Max 准备好合并修改了。他在 WEB 端打开修改，点击 *Publish and Submit* 按钮。
 
-== Next Steps
+此时，Max 的修改已被合并到 master 分支。
 
-This walkthrough provided a quick overview of how a change moves
-through the default Gerrit workflow. At this point, you can:
+== 下一步
 
-* Read the link:intro-user.html[Users guide] to get a better sense of how to
-  make changes using Gerrit
-* Review the link:intro-project-owner.html[Project Owners guide] to learn more
-  about configuring projects in Gerrit, including setting user permissions and
-  configuring verification checks
+这份范例简要涵盖了在默认的 Gerrit 工作流中代码修改流程。要想进一步了解，你可以：
+
+* 阅读link:intro-user.html[项目开发者指南]
+* 阅读link:intro-project-owner.html[项目维护者指南]
 
 GERRIT
 ------
-Part of link:index.html[Gerrit Code Review]
+这份文档是 link:index.html[Gerrit Code Review] 的一部分，由 mailto:i@adamyi.com[Adam Yi] 翻译。
 
 SEARCHBOX
 ---------

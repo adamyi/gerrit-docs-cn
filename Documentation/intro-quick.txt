@@ -1,39 +1,29 @@
-= Gerrit Product Overview
+= Gerrit 概览
 
-Gerrit is a web-based code review tool built on top of the
-https://git-scm.com/[Git version control system]. This introduction provides
-an overview of Gerrit and describes how Gerrit integrates into a typical
-development workflow. It also provides a brief tutorial that shows how to manage
-a change using Gerrit.
+Gerrit 是一个基于 WEB 端的 https://git-scm.com[Git] Code Review（代码审查）工具。这份说明简单介绍了 Gerrit，并描述了 Gerrit 是如何整合进一个典型的开发流程的。它同时描述了如何使用 Gerrit 去管理代码修改。
 
-== What is Gerrit?
+== Gerrit 是什么？
 
-Gerrit makes code review easy by providing a lightweight framework for reviewing
-commits before they are accepted by the codebase. Gerrit works equally well for
-projects where approving changes is restricted to selected users, as is typical
-for Open Source software development, as well as projects where all contributors
-are trusted.
+Gerrit 是一个轻量级 Code Review（代码审查）框架。无论是在开源项目中常见的仅有部分用户可以同意修改的项目，还是所有的贡献者都被充分信任的项目，Gerrit 都能很好的适应。
 
-== Learn About Gerrit
+== 学习 Gerrit
 
-If you're new to Gerrit and want to know more about how it can improve your
-developer workflow, see the following topics:
+如果您刚接触 Gerrit 并想知道 Gerrit 如何能改善您的开发流程，可以参考如下文档：
 
-. link:intro-how-gerrit-works.html[How Gerrit Works]
-. link:intro-gerrit-walkthrough.html[Basic Gerrit Walkthrough]
+. link:intro-how-gerrit-works.html[Gerrit 工作原理]
+. link:intro-gerrit-walkthrough.html[Gerrit 基础流程]
 
-== Getting Started
+== 开始
 
-This documentation contains several guides to help you learn about the Gerrit
-features most relevant to you:
+这份文档包含了几份可以让您了解 Gerrit 最常用功能的指南：
 
-. link:intro-user.html[User Guide]
-. link:intro-project-owner.html[Project Owner Guide]
-. link:https://source.android.com/source/life-of-a-patch[Default Android Workflow] (external)
+. link:intro-user.html[项目开发者指南]
+. link:intro-project-owner.html[项目维护者指南]
+. link:https://source.android.com/source/life-of-a-patch[Android 开发流程] (external)
 
 GERRIT
 ------
-Part of link:index.html[Gerrit Code Review]
+这份文档是 link:index.html[Gerrit Code Review] 的一部分，由 mailto:i@adamyi.com[Adam Yi] 翻译。
 
 SEARCHBOX
 ---------

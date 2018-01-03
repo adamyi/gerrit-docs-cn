@@ -1,37 +1,24 @@
-= How Gerrit Works
+= Gerrit 工作原理
 
-To understand how Gerrit fits into and enhances the developer workflow, consider
-a typical project. This project has a central source repository, which serves as
-the authoritative copy of the project's contents.
+我们通过一个典型项目的例子来理解 Gerrit 是如何适用于并改善开发流程的。这个项目包含一个中央代码库。
 
-.Central Source Repository
+.中央代码库
 image::images/intro-quick-central-repo.png[Authoritative Source Repository]
 
-Gerrit takes the place of this central repository and adds an additional
-concept: a _store of pending changes_.
+Gerrit 就起到了这个中央代码库的作用，并加入了一个额外的概念： _暂存未合并的修改_。
 
-.Gerrit in place of Central Repository
+.Gerrit 作为中央代码库
 image::images/intro-quick-central-gerrit.png[Gerrit in place of Central Repository]
 
-With Gerrit, when a developer makes a change, it is sent to this store of
-pending changes, where other developers can review, discuss and approve the
-change. After enough reviewers grant their approval, the change becomes an
-official part of the codebase.
+Gerrit 将存储开发者作出的修改，以供其他开发者审查、讨论、并最终合并修改。在得到足够多的同意之后，修改将正式成为代码库的一部分。
 
-In addition to this store of pending changes, Gerrit captures notes
-and comments about each change. These features allow developers to review
-changes at their convenience, or when conversations about a change can't
-happen face to face. They also help to create a record of the conversation
-around a given change, which can provide a history of when a change was made and
-why.
+除了暂存未合并的修改以外，Gerrit 还将记录每个修改的描述信息。这使得开发者们可以更容易地进行代码审查，尤其是当审查者们不能面对面讨论时。这同时帮助留存一份关于代码修改的讨论记录，有助于日后查看某一修改的时间与缘由。
 
-Like any repository hosting solution, Gerrit has a powerful
-link:access-control.html[access control model]. This model allows you to
-fine-tune access to your repository.
+和任何代码托管方案一样，Gerrit 有着强大的 link:access-control.html[访问控制功能]。
 
 GERRIT
 ------
-Part of link:index.html[Gerrit Code Review]
+这份文档是 link:index.html[Gerrit Code Review] 的一部分，由 mailto:i@adamyi.com[Adam Yi] 翻译。
 
 SEARCHBOX
 ---------
